@@ -98,6 +98,13 @@ def show_agents_descriptions(managed_agents: Dict):
     managed_agents_descriptions = """
 You can also give requests to team members.
 Calling a team member works the same as for calling a tool: simply, the only argument you can give in the call is 'request', a long string explaining your request.
+For example:
+
+Code:
+```py
+team_member(request="(...your request...)")
+```<end_code>
+
 Given that this team member is a real human, you should be very verbose in your request.
 Here is a list of the team members that you can call:"""
     for agent in managed_agents.values():

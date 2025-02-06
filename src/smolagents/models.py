@@ -156,23 +156,30 @@ tool_role_conversions = {
 def get_tool_json_schema(tool: Tool) -> Dict:
     properties = deepcopy(tool.inputs)
     required = []
+
+    result =  {
+        "type": "function",
+        "function": {
+            "name": tool.name,
+            "description": tool.description,
+        },
+    }
+    if not properties:
+        return result
+
     for key, value in properties.items():
         if value["type"] == "any":
             value["type"] = "string"
         if not ("nullable" in value and value["nullable"]):
             required.append(key)
-    return {
-        "type": "function",
-        "function": {
-            "name": tool.name,
-            "description": tool.description,
-            "parameters": {
-                "type": "object",
-                "properties": properties,
-                "required": required,
-            },
-        },
+
+    result["function"]["parameters"] = {
+        "type": "object",
+        "properties": properties,
+        "required": required,
     }
+
+    return result
 
 
 def remove_stop_sequences(content: str, stop_sequences: List[str]) -> str:
@@ -670,8 +677,6 @@ class LiteLLMModel(Model):
 
         super().__init__(**kwargs)
         self.model_id = model_id
-        # IMPORTANT - Set this to TRUE to add the function to the prompt for Non OpenAI LLMs
-        litellm.add_function_to_prompt = True
         self.api_base = api_base
         self.api_key = api_key
         self.custom_role_conversions = custom_role_conversions
@@ -685,6 +690,12 @@ class LiteLLMModel(Model):
         **kwargs,
     ) -> ChatMessage:
         import litellm
+
+        # IMPORTANT - Set this to TRUE to add the function to the prompt for Non OpenAI LLMs
+        if litellm.supports_function_calling(model=self.model_id) == True:
+            litellm.add_function_to_prompt = False
+        else:
+            litellm.add_function_to_prompt = True
 
         completion_kwargs = self._prepare_completion_kwargs(
             messages=messages,
