@@ -114,6 +114,7 @@ print(model(messages))
 This class lets you call any OpenAIServer compatible model.
 Here's how you can set it (you can customise the `api_base` url to point to another server):
 ```py
+import os
 from smolagents import OpenAIServerModel
 
 model = OpenAIServerModel(
@@ -147,3 +148,22 @@ model = AzureOpenAIServerModel(
 ```
 
 [[autodoc]] AzureOpenAIServerModel
+
+### MLXModel
+
+
+```python
+from smolagents import MLXModel
+
+model = MLXModel(model_id="HuggingFaceTB/SmolLM-135M-Instruct")
+
+print(model([{"role": "user", "content": "Ok!"}], stop_sequences=["great"]))
+```
+```text
+>>> What a
+```
+
+> [!TIP]
+> You must have `mlx-lm` installed on your machine. Please run `pip install smolagents[mlx-lm]` if it's not the case.
+
+[[autodoc]] MLXModel
